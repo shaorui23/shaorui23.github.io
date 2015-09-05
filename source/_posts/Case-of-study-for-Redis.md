@@ -3,7 +3,7 @@ date: 2013-04-22 18:15:23
 description: "A case for studing Redis. This would be the simple
 tutorial for better understand the buiding trial."
 category: tech 
-tags: [tech redis blog]
+tags: [tech redis]
 ---
 
 Read [Theplant Blog](http://theplant.jp/en/blogs/12-techforce-a-case-study-of-redis)
