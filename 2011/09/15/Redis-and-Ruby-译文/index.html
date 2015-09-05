@@ -28,7 +28,7 @@
 
 
 
-  <meta name="keywords" content="Hexo,next" />
+  <meta name="keywords" content="翻译 redis ruby," />
 
 
 
@@ -37,19 +37,16 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.4" />
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick">
+<meta name="description" content="关于Redis如何应用到Ruby的编程中的一篇外文翻译">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://shaorui23.github.io/2015/09/04/hello-world/index.html">
+<meta property="og:title" content="Redis and Ruby (译文)">
+<meta property="og:url" content="http://shaorui23.github.io/2011/09/15/Redis-and-Ruby-译文/index.html">
 <meta property="og:site_name" content="Eric's Blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick">
-<meta property="og:updated_time" content="2015-09-04T06:24:24.000Z">
+<meta property="og:description" content="关于Redis如何应用到Ruby的编程中的一篇外文翻译">
+<meta property="og:updated_time" content="2015-09-05T15:05:10.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick">
+<meta name="twitter:title" content="Redis and Ruby (译文)">
+<meta name="twitter:description" content="关于Redis如何应用到Ruby的编程中的一篇外文翻译">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -59,7 +56,7 @@ Quick">
   };
 </script>
 
-    <title> Hello World // Eric's Blog </title>
+    <title> Redis and Ruby (译文) // Eric's Blog </title>
 </head>
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 <!--[if lte IE 8]>
@@ -170,7 +167,7 @@ Quick">
           
           
             
-              Hello World
+              Redis and Ruby (译文)
             
           
         </h1>
@@ -179,19 +176,30 @@ Quick">
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2015-09-04T14:24:24+08:00" content="2015-09-04">
-            2015-09-04
+          <time itemprop="dateCreated" datetime="2011-09-15T19:13:01+08:00" content="2011-09-15">
+            2011-09-15
           </time>
         </span>
 
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a href="/categories/翻译-redis-ruby/" itemprop="url" rel="index"><span itemprop="name">翻译 redis ruby</span></a></span>
+
+              
+              
+
+            
+          </span>
         
 
         
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/09/04/hello-world/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/04/hello-world/" itemprop="commentsCount"></span>
+              <a href="/2011/09/15/Redis-and-Ruby-译文/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2011/09/15/Redis-and-Ruby-译文/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -205,33 +213,48 @@ Quick">
       
 
       
-        <span itemprop="articleBody"><p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate_static_files">Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <span itemprop="articleBody"><p><em>原文地址：<a href="http://www.programmersparadox.com/2009/06/02/redis-and-ruby/" target="_blank" rel="external">http://www.programmersparadox.com/2009/06/02/redis-and-ruby/</a></em></p>
+<p>在五月份的一次 raleigh.rb 聚会中， Kevin Smith进行了一次关于多形式数据库的演讲，其中包括著名的 CouchDB 和 Redis。</p>
+<p>这一次的演讲让我确信Redis将会是支持 getencouraged（一个小型的类似twitter的项目）最好的数据库系统了。</p>
+<p>Redis是一种加速的key-value数据库，特别适合这种只需要保存tweets的小型twitter项目。作为Ruby世界的新鲜事物，我之前没有遇到过这样的阻碍让我如此沮丧，而这些问题同样也会摆在其他人面前。其中一个障碍是我对ruby中gem的系统机制理解不够深入，而且找不到一个关于Redis的gem能够让我轻松的gem install去使用。这意味着我必须知道如何用代码从github上安装Redis ruby的客户端开发包到本地。想到读者们也许也会像我这样对它们犯迷糊，我在这里列举出使用redis-rb客户端开发包来安装Redis和redis gem到本地系统的步骤。<br>第一步，从github上下载redis-rb客户端开发包，地址如下：<br><a href="http://github.com/ezmobius/redis-rb/tree/master" target="_blank" rel="external">http://github.com/ezmobius/redis-rb/tree/master</a></p>
+<p>网上也有其他的Redis Ruby客户端开发包，但由于我之前用过redis-rb，所以我推荐使用它。为什么不直接从Redis开始，而是从一个Redis的客户端开始呢？因为redis-rb提供了rake任务已经可以帮你安装Redis了。当然你也可以不用rake任务来安装Redis。</p>
+<p>一旦你下载了redis-rb，把它解压好了，然后在你的终端上键入cd 进入目录。如果你的系统还未安装rspec gem，请安装它：</p>
+<p><code>sudo gem install rspec</code></p>
+<p>现在执行rake的命令安装Redis：</p>
+<p><code>rake redis:install</code></p>
+<p>执行上面的命令会将Redis安装到/usr/bin目录。Redis的配置文件redis.conf位于/etc目录。你能够通过执行 /usr/bin/redis-server 来启动Redis服务器。因为Redis会提供默认的配置文件，所以通常情况下不需要设置它；不过推荐去打开这个文件看看，它里面有许多值得探究的地方。<br>接下来，redis-rb需要你安装dtach，执行下面命令：</p>
+<p><code>rake dtach:install</code></p>
+<p>键入以上命令将dtach安装到 /usr/bin/目录下。除此之外你不必关心dtach了，只需要保证它已经在系统里面，以便redis-rb能够找到它。</p>
+<p>最后一个步骤是安装redis-rb gem，让它能在你的代码中使用。这一步很简单：</p>
+<p><code>rake gem</code></p>
+<p>这个命令目的是把redis-rb gem打包放在当前文件夹下面。如果你已经进入了这个打包后的目录，你就可以安装这个gem了：</p>
+<p><code>sudo gem install redis</code></p>
+<p><em>注意：虽然在github的repo上是叫做redis-rb,但repo创建的gem叫做redis。</em></p>
+<p>这样，你不仅把Redis安装到你的系统，而且也能够通过redis gem利用ruby代码连接Redis了。这里有几个例子帮你把程序跑起来（这里的例子是基于github上的redis-rb repo的，你也可以在这个项目里找到更多的例子）：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">require <span class="string">'rubygems'</span>  </span><br><span class="line">require <span class="string">'redis'</span>  </span><br><span class="line">r = Redis<span class="class">.new</span>  </span><br><span class="line">r.<span class="function"><span class="title">delete</span><span class="params">(<span class="string">'first_key'</span>)</span></span> <span class="id">#clear</span> it out, <span class="keyword">if</span> it happens to be set  </span><br><span class="line">puts <span class="string">'Set the key &#123;first_key&#125; to &#123;hello world&#125;'</span>  </span><br><span class="line">r[<span class="string">'first_key'</span>] = <span class="string">'hello world'</span>  </span><br><span class="line">puts <span class="string">'The value of &#123;first_key&#125; is:'</span>  </span><br><span class="line">puts r[<span class="string">'first_key'</span>]</span><br></pre></td></tr></table></figure>
+<p>把代码保存到文件里面，然后在你的机子上开启Redis（/usr/bin/redis-server），执行代码，见证它的魔术戏法吧。希望能够帮助你开启Redis之旅，Enjoy！</p>
 </span>
       
     </div>
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/翻译-redis-ruby/" rel="tag">#翻译 redis ruby</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/09/05/Ruby-对象模型例子/" rel="prev">Ruby: 对象模型例子</a>
+              <a href="/2011/10/21/服装企业需求调研的几点总结/" rel="prev">服装企业需求调研的几点总结</a>
             
           </div>
 
           <div class="post-nav-next post-nav-item">
-            
-              <a href="/2013/04/22/Case-of-study-for-Redis/" rel="next">TechForce: A case study of Redis</a>
             
           </div>
         </div>
@@ -257,8 +280,8 @@ Quick">
             
               <div class="comments" id="comments">
                 
-                  <div class="ds-thread" data-thread-key="2015/09/04/hello-world/"
-                       data-title="Hello World" data-url="http://shaorui23.github.io/2015/09/04/hello-world/">
+                  <div class="ds-thread" data-thread-key="2011/09/15/Redis-and-Ruby-译文/"
+                       data-title="Redis and Ruby (译文)" data-url="http://shaorui23.github.io/2011/09/15/Redis-and-Ruby-译文/">
                   </div>
                 
               </div>
@@ -354,7 +377,7 @@ Quick">
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick_Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create_a_new_post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run_server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate_static_files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy_to_remote_sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <p class="post-toc-empty">此文章未包含目录</p>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
