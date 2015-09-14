@@ -168,7 +168,98 @@
           
           
             
-              <a class="post-title-link" href="/2015/09/05/Ruby-对象模型例子/" itemprop="url">
+              <a class="post-title-link" href="/2015/07/14/Rails实现便捷的搜索过滤功能/" itemprop="url">
+                Rails实现便捷的搜索过滤功能
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-07-14T14:50:47+08:00" content="2015-07-14">
+            2015-07-14
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/07/14/Rails实现便捷的搜索过滤功能/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/07/14/Rails实现便捷的搜索过滤功能/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><p>搜索是Rails 开发中必不可少的拓展功能。常见的<a href="https://www.ruby-toolbox.com/categories/rails_search" target="_blank" rel="external">带有搜索功能的gem</a>有很多，例如Redis-serach, Sunspot 和 Elasticsearch。但是在普通的Rails 应用中引入他们难免过于庞大，如果只是为了实现简单的搜索功能，他们就有些大材小用了。</p>
+<p>Rails 自带 <a href="http://guides.rubyonrails.org/active_record_querying.html#scopes" target="_blank" rel="external">scopes</a> 功能，能够提供可拓展性很强的功能便于你使用搜索过滤等需求。</p>
+<h3 id="使用Scopes_构建搜索功能">使用Scopes 构建搜索功能</h3><p>假设应用有一个Article 的 Model，前台可以支持搜索。可以通过输入名字，选择版本，按是否已经出版来找到想要的文章。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class <span class="constant">Article </span>&lt; <span class="constant">ActiveRecord:</span><span class="symbol">:Base</span></span><br><span class="line">  scope <span class="symbol">:name</span>, -&gt; (name) &#123; where(<span class="string">"name like ?"</span>, <span class="string">"%<span class="subst">#&#123;name&#125;</span>%"</span>)&#125;</span><br><span class="line">  scope <span class="symbol">:version</span>, -&gt;(version) &#123; where <span class="symbol">version:</span> version &#125;</span><br><span class="line">  scope <span class="symbol">:published</span>, -&gt; &#123; where(<span class="symbol">published:</span> <span class="keyword">true</span>) &#125;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>用scope chain 组合成你要的结果：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@articles = Article<span class="class">.published</span><span class="class">.version</span>(<span class="string">"english"</span>).<span class="function"><span class="title">name</span><span class="params">(<span class="string">"Ruby"</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>然后在controller 里面就可以构建action：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span>  <span class="title">index</span></span></span><br><span class="line">  <span class="variable">@articles</span> = <span class="constant">Article</span>.scoped</span><br><span class="line">  <span class="variable">@articles</span> = <span class="variable">@articles</span>.published <span class="keyword">if</span> params[<span class="symbol">:published</span>].present?</span><br><span class="line">  <span class="variable">@articles</span> = <span class="variable">@articles</span>.name(params[<span class="symbol">:name</span>]) <span class="keyword">if</span> params[<span class="symbol">:name</span>].present?</span><br><span class="line">  <span class="variable">@articles</span> = <span class="variable">@articles</span>.version(params[<span class="symbol">:version</span>]) <span class="keyword">if</span> params[<span class="symbol">:version</span>].present?</span><br><span class="line">  <span class="variable">@articles</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>前台URL构建：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">http</span>://xxx.com/articles?published=<span class="constant">true</span>&amp;name=ruby&amp;<span class="built_in">version</span>=<span class="keyword">english</span></span><br></pre></td></tr></table></figure>
+<p>到这一步我们就构建好了基本搜索功能了。</p>
+<hr>
+<p>Article:Index 方法里面为了过滤出想要的article数据，明显用了好多可以重复的代码。这里我们可以抽出来复用：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">module</span> <span class="title">Searchable</span></span></span><br><span class="line">  extend <span class="constant">ActiveSupport::Concern</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">module</span> <span class="title">ClassMethods</span></span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">search</span><span class="params">(filtering_params)</span></span></span><br><span class="line">      results = <span class="keyword">self</span>.scoped</span><br><span class="line">      filtering_params.each <span class="keyword">do</span> |key, value|</span><br><span class="line">        results = results.send(key, value) <span class="keyword">if</span> value</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      results</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>然后在Model 里面include：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Article</span></span></span><br><span class="line">  <span class="keyword">include</span> <span class="constant">Searchable</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>在Controller里就可以简单的调用了：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span></span></span><br><span class="line">  <span class="variable">@articles</span> = <span class="constant">Article.</span>search(params.slice(<span class="symbol">:published</span>, <span class="symbol">:version</span>, <span class="symbol">:name</span>))</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p>关于为什么在module里面引用：<code>extend ActiveSupport::Concern</code>. 可以看<a href="https://github.com/rails/rails/blob/master/activesupport/lib/active_support/concern.rb" target="_blank" rel="external">源代码</a>，另外还有一篇文章详细讲述了原理：<a href="https://ihower.tw/blog/archives/3949" target="_blank" rel="external">深入Rails3: ActiveSupport::Concern</a></p>
+<blockquote>
+<p> ActiveSupport::Concern 就是來幫助解決這個難題，我們希望宿主可以不需要知道 modules 之間的 dependencies 關係。dependencies 關係寫在 module 裡面就好了。</p>
+</blockquote>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/06/05/Ruby-对象模型例子/" itemprop="url">
                 Ruby: 对象模型例子
               </a>
             
@@ -179,8 +270,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2015-09-05T17:29:27+08:00" content="2015-09-05">
-            2015-09-05
+          <time itemprop="dateCreated" datetime="2015-06-05T17:29:27+08:00" content="2015-06-05">
+            2015-06-05
           </time>
         </span>
 
@@ -201,8 +292,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/09/05/Ruby-对象模型例子/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/05/Ruby-对象模型例子/" itemprop="commentsCount"></span>
+              <a href="/2015/06/05/Ruby-对象模型例子/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/05/Ruby-对象模型例子/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -259,8 +350,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/09/04/hello-world/" itemprop="url">
-                Hello World
+              <a class="post-title-link" href="/2015/05/14/hello-world/" itemprop="url">
+                Quick Start For Hexo
               </a>
             
           
@@ -270,8 +361,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2015-09-04T14:24:24+08:00" content="2015-09-04">
-            2015-09-04
+          <time itemprop="dateCreated" datetime="2015-05-14T14:50:47+08:00" content="2015-05-14">
+            2015-05-14
           </time>
         </span>
 
@@ -281,8 +372,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/09/04/hello-world/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/04/hello-world/" itemprop="commentsCount"></span>
+              <a href="/2015/05/14/hello-world/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/05/14/hello-world/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -615,7 +706,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -629,7 +720,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
