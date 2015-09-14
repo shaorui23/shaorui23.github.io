@@ -1,5 +1,5 @@
 title: 'Ruby: 对象模型例子'
-date: 2015-09-05 17:29:27
+date: 2015-06-05 17:29:27
 category: ruby
 tags: [tech ruby]
 ---
