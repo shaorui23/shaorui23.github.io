@@ -79,7 +79,7 @@ tags: [tech css]
 例如，屏幕宽度的最小像素在980以上，则显示header + 3 columns +
 footer 效果：
 
-![full screen](/assets/fullscreen.png)
+![full screen](/2015/06/01/Responsive-Web-Design-Study-Case/fullscreen.png)
 
 ```
 @media screen and (min-width: 980px) {
@@ -113,7 +113,7 @@ footer 效果：
 
 如果屏幕宽度的像素在600到980之间，则显示header + 2 columns + footer，隐藏第三行column：
 
-![two columns](/assets/twocolumns.png)
+![two columns](/2015/06/01/Responsive-Web-Design-Study-Case/twocolumns.png)
 
 
 ```
@@ -149,7 +149,7 @@ footer 效果：
 
 然后到了适配手机版本的屏幕了。这时我们出来像素宽度从400到600的界面，变成一个类似“汉堡”的排列样式：
 
-![hanburger](/assets/hanburger.png)
+![hanburger](/2015/06/01/Responsive-Web-Design-Study-Case/hanburger.png)
 
 ```
 @media screen and (min-width: 400px) and (max-width: 600px) {
@@ -174,17 +174,16 @@ footer 效果：
 }
 ```
 
-asdfasdfasd
-
 ## 总结
 
 上面是比较简单的操作用例，下面是工作中通过模仿上面的用例重构的网站。思路大同小异，只是需要重新设计一个导航条。默认的大屏幕下的导航条在小屏幕下不显示，反而加载“汉堡导航”。当然了，RWD的设计固然能够同时整合pc和mobile的要求，它同时也会引起性能问题。试想同样的html/js/css/images等资源也一遍加载到mobile上，手机的显示速度也会打折扣。
 
 ### 大屏幕下的原始网站
 
-![asicsfullscreen](/assets/asicsfullscreen.png)
+![asicsfullscreen](/2015/06/01/Responsive-Web-Design-Study-Case/asicsfullscreen.png)
 
 ### 手机和小屏幕版本的网站
 
-![asics](/assets/asics.png)
-![navigation](/assets/navigation.png)
+![asics](/2015/06/01/Responsive-Web-Design-Study-Case/asics.png)
+![navigation](/2015/06/01/Responsive-Web-Design-Study-Case/navigation.png)
+
