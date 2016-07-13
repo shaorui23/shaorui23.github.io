@@ -46,10 +46,11 @@
 <meta property="og:image" content="http://theplant.jp/system/photos/bgwekoq0t9.png?1345691160">
 <meta property="og:image" content="http://theplant.jp/system/photos/p2smz2953a.png?1345692049">
 <meta property="og:image" content="http://theplant.jp/system/photos/f1y1xkk5fc.png?1345692207">
-<meta property="og:updated_time" content="2015-09-05T15:06:39.000Z">
+<meta property="og:updated_time" content="2016-07-13T06:26:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TechForce: A case study of Redis">
 <meta name="twitter:description" content="A case for studing Redis. This would be the simple tutorial for better understand the buiding trial.">
+<meta name="twitter:image" content="http://theplant.jp/system/photos/bgwekoq0t9.png?1345691160">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -217,68 +218,68 @@
 
       
         <span itemprop="articleBody"><p>Read <a href="http://theplant.jp/en/blogs/12-techforce-a-case-study-of-redis" target="_blank" rel="external">Theplant Blog</a></p>
-<h2 id="TechForce:_A_case_study_of_Redis">TechForce: A case study of Redis</h2><p><code>Redis</code> is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatypes. In this article I will try to show the process of how we design and implement a simple clone of Twitter written using Ruby and Redis as only database.</p>
+<h2 id="TechForce-A-case-study-of-Redis"><a href="#TechForce-A-case-study-of-Redis" class="headerlink" title="TechForce: A case study of Redis"></a>TechForce: A case study of Redis</h2><p><code>Redis</code> is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatypes. In this article I will try to show the process of how we design and implement a simple clone of Twitter written using Ruby and Redis as only database.</p>
 <p>Here is a screenshot of the application:</p>
 <p><img src="http://theplant.jp/system/photos/bgwekoq0t9.png?1345691160" alt=""></p>
 <p>Our Twitter case is structurally simple. It mainly contains three features for the user: add friends, remove friends and post a tweet. We have only five people in our “world” and each person can get others’ tweets by adding them as friends.</p>
 <p>Through this simple application, we will learn how to construct a key and use appropriate data types to store values.</p>
 <p>Now, let me walk you through the main concepts of this application.</p>
-<h2 id="RubyGem_about_Redis">RubyGem about Redis</h2><p>In this application, I use “redis-rb” gem, a Ruby client library for<br>Redis, to match Redis’ API one-to-one while still providing an idiomatic<br>interface. It features thread-safety, client-side sharding, pipelining,<br>and an obsession for performance. Here’s the link to visit this project: [Redis][<a href="https://github.com/redis/redis-rb" target="_blank" rel="external">https://github.com/redis/redis-rb</a>]</p>
+<h2 id="RubyGem-about-Redis"><a href="#RubyGem-about-Redis" class="headerlink" title="RubyGem about Redis"></a>RubyGem about Redis</h2><p>In this application, I use “redis-rb” gem, a Ruby client library for<br>Redis, to match Redis’ API one-to-one while still providing an idiomatic<br>interface. It features thread-safety, client-side sharding, pipelining,<br>and an obsession for performance. Here’s the link to visit this project: [Redis][<a href="https://github.com/redis/redis-rb" target="_blank" rel="external">https://github.com/redis/redis-rb</a>]</p>
 <p>You can connect to Redis by instantiating the ‘Redis’ class:</p>
-<pre><code><span class="keyword">require</span>  <span class="string">"redis"</span>
-redis = Redis.<span class="keyword">new</span>(:host =&gt; <span class="string">"127.0.0.1"</span>, :port =&gt; <span class="number">6379</span>)
-</code></pre><h2 id="Data_Structure">Data Structure</h2><p>Design a table to store values is easy for a relational database. But We don’t have tables now, so we should designed structure to store a value and identify what keys are needed to represent our objects.</p>
+<pre><code>require  &quot;redis&quot;
+redis = Redis.new(:host =&gt; &quot;127.0.0.1&quot;, :port =&gt; 6379)
+</code></pre><h2 id="Data-Structure"><a href="#Data-Structure" class="headerlink" title="Data Structure"></a>Data Structure</h2><p>Design a table to store values is easy for a relational database. But We don’t have tables now, so we should designed structure to store a value and identify what keys are needed to represent our objects.</p>
 <p>Let’s start from Users. We need to represent these users of course, with the username, userid, followers and following users, and so on. Like relational databases, it’s a good solution to associate a unique ID to every user to identify users inside our system. Every other reference to this user will be made by id.</p>
-<pre><code>INCR UserID =&gt; <span class="number">1000</span>
-SET <span class="string">user:</span><span class="string">id:</span><span class="number">1000</span>:username theplant
-SET <span class="string">username:</span><span class="string">theplant:</span><span class="string">user:</span>id <span class="number">1000</span>
-</code></pre><h3 id="The_core_code_for_constructing_Users:">The core code for constructing Users:</h3><pre><code><span class="function"><span class="keyword">def</span> <span class="title">init_user</span><span class="params">(redis)</span></span>
-  redis.set(<span class="string">"user:uid"</span>, <span class="number">1000</span>)
-  username = <span class="string">%W[Eric Yuan Binku Lancee Juice]</span>
-  username.each <span class="keyword">do</span> |name|
-    user_id = <span class="constant">Redis</span>.current.incr(<span class="string">"user:uid"</span>) 
-    redis.set(<span class="string">"user:id:<span class="subst">#{user_id}</span>:username"</span>, name)
-    redis.set(<span class="string">"username:<span class="subst">#{name}</span>:user:id"</span>, user_id)
-    redis.rpush(<span class="string">"users"</span>, user_id)
-  <span class="keyword">end</span>
-<span class="keyword">end</span>
-</code></pre><h2 id="Following,_followers">Following, followers</h2><p>Redis data type “Set” is a perfect data structure to save these values. Every user has followers and users that they are following.</p>
-<pre><code>User:id:<span class="number">1000</span>:followers =&gt; <span class="keyword">Set</span> <span class="keyword">of</span> ids <span class="keyword">of</span> followers <span class="keyword">of</span> current user
-User:id:<span class="number">1000</span>:following =&gt; <span class="keyword">Set</span> <span class="keyword">of</span> ids <span class="keyword">of</span> followees <span class="keyword">of</span> current user
-</code></pre><h2 id="The_core_code_for_the_above:">The core code for the above:</h2><pre><code><span class="function"><span class="keyword">def</span> <span class="title">add_friend</span></span>
-  redis.sadd(<span class="string">"user:id:<span class="subst">#{params[<span class="symbol">:self_id</span>]}</span>:followees"</span>, params[<span class="symbol">:followee_id</span>])
-  redis.sadd(<span class="string">"user:id:<span class="subst">#{params[<span class="symbol">:followee_id</span>]}</span>:followers"</span>, params[<span class="symbol">:self_id</span>] )
-<span class="keyword">end</span>
-</code></pre><h2 id="Post">Post</h2><p>The most important part of our case is to add the post to every user and display it in the user’s page. Not only saving your own posts but also getting your friends’ tweets on your page. Using the same strategy for saving User data, we also associate a unique ID to every user to identify users inside our system.</p>
-<pre><code>INCR <span class="keyword">post</span>:id =&gt; 1
-<span class="keyword">SET</span> <span class="keyword">post</span>:1 <span class="string">"My first tweet!"</span>
+<pre><code>INCR UserID =&gt; 1000
+SET user:id:1000:username theplant
+SET username:theplant:user:id 1000
+</code></pre><h3 id="The-core-code-for-constructing-Users"><a href="#The-core-code-for-constructing-Users" class="headerlink" title="The core code for constructing Users:"></a>The core code for constructing Users:</h3><pre><code>def init_user(redis)
+  redis.set(&quot;user:uid&quot;, 1000)
+  username = %W[Eric Yuan Binku Lancee Juice]
+  username.each do |name|
+    user_id = Redis.current.incr(&quot;user:uid&quot;) 
+    redis.set(&quot;user:id:#{user_id}:username&quot;, name)
+    redis.set(&quot;username:#{name}:user:id&quot;, user_id)
+    redis.rpush(&quot;users&quot;, user_id)
+  end
+end
+</code></pre><h2 id="Following-followers"><a href="#Following-followers" class="headerlink" title="Following, followers"></a>Following, followers</h2><p>Redis data type “Set” is a perfect data structure to save these values. Every user has followers and users that they are following.</p>
+<pre><code>User:id:1000:followers =&gt; Set of ids of followers of current user
+User:id:1000:following =&gt; Set of ids of followees of current user
+</code></pre><h2 id="The-core-code-for-the-above"><a href="#The-core-code-for-the-above" class="headerlink" title="The core code for the above:"></a>The core code for the above:</h2><pre><code>def add_friend
+  redis.sadd(&quot;user:id:#{params[:self_id]}:followees&quot;, params[:followee_id])
+  redis.sadd(&quot;user:id:#{params[:followee_id]}:followers&quot;, params[:self_id] )
+end
+</code></pre><h2 id="Post"><a href="#Post" class="headerlink" title="Post"></a>Post</h2><p>The most important part of our case is to add the post to every user and display it in the user’s page. Not only saving your own posts but also getting your friends’ tweets on your page. Using the same strategy for saving User data, we also associate a unique ID to every user to identify users inside our system.</p>
+<pre><code>INCR post:id =&gt; 1
+SET post:1 &quot;My first tweet!&quot;
 </code></pre><p>Then we use the Redis data type “List” to save every post_id. Introduction from reids.io:</p>
 <blockquote>
 <p>Redis Lists are simply lists of strings, sorted by insertion order. It is possible to add elements to a Redis List pushing new elements on the head (on the left) or on the tail (on the right) of the list.</p>
 </blockquote>
-<pre><code>$ user:id:<span class="number">1000</span>:posts =&gt; <span class="built_in">List</span> <span class="keyword">of</span> post ids
+<pre><code>$ user:id:1000:posts =&gt; List of post ids
 </code></pre><p>The core code:</p>
-<pre><code><span class="function"><span class="keyword">def</span> <span class="title">add_post</span></span>
-  redis = <span class="constant">Redis.</span>current
-  post_id = redis.incr(<span class="string">"Post:Id"</span>)
-  redis.set(<span class="string">"post:<span class="subst">#{post_id}</span>"</span>, params[<span class="symbol">:post</span>])
-  redis.rpush(<span class="string">"posts"</span>, post_id)
-  redis.sadd(<span class="string">"user:id:<span class="subst">#{params[<span class="symbol">:id</span>]}</span>:posts"</span>, post_id)
-  redis.smembers(<span class="string">"user:id:<span class="subst">#{params[<span class="symbol">:id</span>]}</span>:followers"</span>).each <span class="keyword">do</span> |follower|
-    redis.sadd(<span class="string">"user:id:<span class="subst">#{follower}</span>:mentions"</span>, post_id)
-  <span class="keyword">end</span>
-<span class="keyword">end</span>
+<pre><code>def add_post
+  redis = Redis.current
+  post_id = redis.incr(&quot;Post:Id&quot;)
+  redis.set(&quot;post:#{post_id}&quot;, params[:post])
+  redis.rpush(&quot;posts&quot;, post_id)
+  redis.sadd(&quot;user:id:#{params[:id]}:posts&quot;, post_id)
+  redis.smembers(&quot;user:id:#{params[:id]}:followers&quot;).each do |follower|
+    redis.sadd(&quot;user:id:#{follower}:mentions&quot;, post_id)
+  end
+end
 </code></pre><p><img src="http://theplant.jp/system/photos/p2smz2953a.png?1345692049" alt=""></p>
-<h2 id="Following_users">Following users</h2><p>There are more than Lists. Redis also supports Sets that are unsorted collections of elements. It is possible to add, remove, and test for the existence of members and perform intersections between different Sets. If user id 1000 (Eric) wants to follow user id 1001 (Yuan), we can do this with just two SADD:</p>
-<pre><code>SADD user:id:<span class="number">1000</span>:following <span class="number">1001</span>
-SADD user:id:<span class="number">1001</span>:followers <span class="number">1000</span>
+<h2 id="Following-users"><a href="#Following-users" class="headerlink" title="Following users"></a>Following users</h2><p>There are more than Lists. Redis also supports Sets that are unsorted collections of elements. It is possible to add, remove, and test for the existence of members and perform intersections between different Sets. If user id 1000 (Eric) wants to follow user id 1001 (Yuan), we can do this with just two SADD:</p>
+<pre><code>SADD user:id:1000:following 1001
+SADD user:id:1001:followers 1000
 </code></pre><p>And remove a friend is much like to following a user. It should be pointed out that we will lose a follower when your follower “removes” you. The core code below:</p>
 <pre><code>def remove_friend
-  redis.s<span class="comment">rem("user:id:#{params[:self_id]}:followees", params[:follower_id])</span>
-  redis.s<span class="comment">rem("user:id:#{params[:follower_id]}:followers", params[:self_id])</span>
-  remove_ids= redis.smembers("user:id:#{params[:follower_id]}:posts")
-  remove_ids.each <span class="flow">do</span> |id|
-    redis.s<span class="comment">rem("user:id:#{params[:self_id]}:mentions", id) </span>
+  redis.srem(&quot;user:id:#{params[:self_id]}:followees&quot;, params[:follower_id])
+  redis.srem(&quot;user:id:#{params[:follower_id]}:followers&quot;, params[:self_id])
+  remove_ids= redis.smembers(&quot;user:id:#{params[:follower_id]}:posts&quot;)
+  remove_ids.each do |id|
+    redis.srem(&quot;user:id:#{params[:self_id]}:mentions&quot;, id) 
   end
 end
 </code></pre><p>Here is a screenshot of string value we save in Redis:</p>
@@ -374,7 +375,7 @@ end
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -430,7 +431,7 @@ end
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TechForce:_A_case_study_of_Redis"><span class="nav-number">1.</span> <span class="nav-text">TechForce: A case study of Redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RubyGem_about_Redis"><span class="nav-number">2.</span> <span class="nav-text">RubyGem about Redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Data_Structure"><span class="nav-number">3.</span> <span class="nav-text">Data Structure</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The_core_code_for_constructing_Users:"><span class="nav-number">3.1.</span> <span class="nav-text">The core code for constructing Users:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Following,_followers"><span class="nav-number">4.</span> <span class="nav-text">Following, followers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The_core_code_for_the_above:"><span class="nav-number">5.</span> <span class="nav-text">The core code for the above:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Post"><span class="nav-number">6.</span> <span class="nav-text">Post</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Following_users"><span class="nav-number">7.</span> <span class="nav-text">Following users</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TechForce-A-case-study-of-Redis"><span class="nav-number">1.</span> <span class="nav-text">TechForce: A case study of Redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RubyGem-about-Redis"><span class="nav-number">2.</span> <span class="nav-text">RubyGem about Redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-Structure"><span class="nav-number">3.</span> <span class="nav-text">Data Structure</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The-core-code-for-constructing-Users"><span class="nav-number">3.1.</span> <span class="nav-text">The core code for constructing Users:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Following-followers"><span class="nav-number">4.</span> <span class="nav-text">Following, followers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-core-code-for-the-above"><span class="nav-number">5.</span> <span class="nav-text">The core code for the above:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Post"><span class="nav-number">6.</span> <span class="nav-text">Post</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Following-users"><span class="nav-number">7.</span> <span class="nav-text">Following users</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -448,7 +449,7 @@ end
             <div class="copyright" >
   
   &copy; &nbsp;  2013 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-heart"></i>
   </span>
