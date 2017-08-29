@@ -101,14 +101,14 @@
 <meta property="og:site_name" content="Eric&#39;s Blog">
 <meta property="og:description" content="Read Theplant Blog TechForce: A case study of RedisRedis is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatyp">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/12/file/bgwekoq0t9 (4">
-<meta property="og:image" content="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/12/file/bgwekoq0t9 (4">
-<meta property="og:image" content="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/15/file/f1y1xkk5fc (1">
-<meta property="og:updated_time" content="2017-08-29T15:37:36.000Z">
+<meta property="og:image" content="http://shaorui23.github.io/2013/04/images/case-1.png">
+<meta property="og:image" content="http://shaorui23.github.io/2013/04/images/case-2.png">
+<meta property="og:image" content="http://shaorui23.github.io/2013/04/images/case-3.png">
+<meta property="og:updated_time" content="2017-08-29T15:41:04.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="case-of-study-for-redis">
 <meta name="twitter:description" content="Read Theplant Blog TechForce: A case study of RedisRedis is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatyp">
-<meta name="twitter:image" content="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/12/file/bgwekoq0t9 (4">
+<meta name="twitter:image" content="http://shaorui23.github.io/2013/04/images/case-1.png">
 
 
 
@@ -347,7 +347,7 @@
 <p>Read <a href="http://theplant.jp/en/blogs/12-techforce-a-case-study-of-redis" target="_blank" rel="external">Theplant Blog</a></p>
 <h2 id="TechForce-A-case-study-of-Redis"><a href="#TechForce-A-case-study-of-Redis" class="headerlink" title="TechForce: A case study of Redis"></a><a href="#TechForce-A-case-study-of-Redis" title="TechForce: A case study of Redis"></a>TechForce: A case study of Redis</h2><p><code>Redis</code> is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatypes. In this article I will try to show the process of how we design and implement a simple clone of Twitter written using Ruby and Redis as only database.</p>
 <p>Here is a screenshot of the application:</p>
-<p><img src="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/12/file/bgwekoq0t9 (4" alt="">.20160617072016754961506.png)</p>
+<p><img src="../../images/case-1.png" alt=""></p>
 <p>Our Twitter case is structurally simple. It mainly contains three features for the user: add friends, remove friends and post a tweet. We have only five people in our “world” and each person can get others’ tweets by adding them as friends.</p>
 <p>Through this simple application, we will learn how to construct a key and use appropriate data types to store values.</p>
 <p>Now, let me walk you through the main concepts of this application.</p>
@@ -396,7 +396,7 @@ SET post:1 &quot;My first tweet!&quot;
     redis.sadd(&quot;user:id:#{follower}:mentions&quot;, post_id)
   end
 end
-</code></pre><p><img src="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/12/file/bgwekoq0t9 (4" alt="">.20160617072016754961506.png)</p>
+</code></pre><p><img src="../../images/case-2.png" alt=""></p>
 <h2 id="Following-users"><a href="#Following-users" class="headerlink" title="Following users"></a><a href="#Following-users" title="Following users"></a>Following users</h2><p>There are more than Lists. Redis also supports Sets that are unsorted collections of elements. It is possible to add, remove, and test for the existence of members and perform intersections between different Sets. If user id 1000 (Eric) wants to follow user id 1001 (Yuan), we can do this with just two SADD:</p>
 <pre><code>SADD user:id:1000:following 1001
 SADD user:id:1001:followers 1000
@@ -410,7 +410,7 @@ SADD user:id:1001:followers 1000
   end
 end
 </code></pre><p>Here is a screenshot of string value we save in Redis:</p>
-<p><img src="http://theplanthp-prod.s3-ap-northeast-1.amazonaws.com/asset_managers/15/file/f1y1xkk5fc (1" alt="">.20160617074016496323737.png)</p>
+<p><img src="../../images/case-3.png" alt=""></p>
 <p><code>TechForce</code> is a weekly meeting held at The Plant for developers to present and discuss new technologies and projects they are working on. Each week a different developer presents.</p>
 <p>]</p>
 
