@@ -101,14 +101,14 @@
 <meta property="og:site_name" content="Eric&#39;s Blog">
 <meta property="og:description" content="Read Theplant Blog TechForce: A case study of RedisRedis is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatyp">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://shaorui23.github.io/2013/04/images/case-1.png">
-<meta property="og:image" content="http://shaorui23.github.io/2013/04/images/case-2.png">
-<meta property="og:image" content="http://shaorui23.github.io/2013/04/images/case-3.png">
-<meta property="og:updated_time" content="2017-08-29T15:51:33.000Z">
+<meta property="og:image" content="http://shaorui23.github.io/images/case-1.png">
+<meta property="og:image" content="http://shaorui23.github.io/images/case-2.png">
+<meta property="og:image" content="http://shaorui23.github.io/images/case-3.png">
+<meta property="og:updated_time" content="2017-08-30T03:09:24.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="case-of-study-for-redis">
 <meta name="twitter:description" content="Read Theplant Blog TechForce: A case study of RedisRedis is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatyp">
-<meta name="twitter:image" content="http://shaorui23.github.io/2013/04/images/case-1.png">
+<meta name="twitter:image" content="http://shaorui23.github.io/images/case-1.png">
 
 
 
@@ -347,7 +347,7 @@
 <p>Read <a href="http://theplant.jp/en/blogs/12-techforce-a-case-study-of-redis" target="_blank" rel="external">Theplant Blog</a></p>
 <h2 id="TechForce-A-case-study-of-Redis"><a href="#TechForce-A-case-study-of-Redis" class="headerlink" title="TechForce: A case study of Redis"></a><a href="#TechForce-A-case-study-of-Redis" title="TechForce: A case study of Redis"></a>TechForce: A case study of Redis</h2><p><code>Redis</code> is one of the open source projects I’m currently most interested in.As a key-value store, Redis has the abillity to store data via its datatypes. In this article I will try to show the process of how we design and implement a simple clone of Twitter written using Ruby and Redis as only database.</p>
 <p>Here is a screenshot of the application:</p>
-<p><img src="http://shaorui23.github.io/2013/04/images/case-1.png" alt=""></p>
+<p><img src="/images/case-1.png" alt=""></p>
 <p>Our Twitter case is structurally simple. It mainly contains three features for the user: add friends, remove friends and post a tweet. We have only five people in our “world” and each person can get others’ tweets by adding them as friends.</p>
 <p>Through this simple application, we will learn how to construct a key and use appropriate data types to store values.</p>
 <p>Now, let me walk you through the main concepts of this application.</p>
@@ -370,14 +370,14 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ user:id:<span class="number">1000</span>:<span class="function"><span class="params">posts</span> =&gt;</span> List <span class="keyword">of</span> post ids</div></pre></td></tr></table></figure>
 <p>The core code:</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_post</span></span></div><div class="line">  redis = Redis.current</div><div class="line">  post_id = redis.incr(<span class="string">"Post:Id"</span>)</div><div class="line">  redis.set(<span class="string">"post:<span class="subst">#&#123;post_id&#125;</span>"</span>, params[<span class="symbol">:post</span>])</div><div class="line">  redis.rpush(<span class="string">"posts"</span>, post_id)</div><div class="line">  redis.sadd(<span class="string">"user:id:<span class="subst">#&#123;params[<span class="symbol">:id</span>]&#125;</span>:posts"</span>, post_id)</div><div class="line">  redis.smembers(<span class="string">"user:id:<span class="subst">#&#123;params[<span class="symbol">:id</span>]&#125;</span>:followers"</span>).each <span class="keyword">do</span> <span class="params">|follower|</span></div><div class="line">    redis.sadd(<span class="string">"user:id:<span class="subst">#&#123;follower&#125;</span>:mentions"</span>, post_id)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p><img src="http://shaorui23.github.io/2013/04/images/case-2.png" alt=""></p>
+<p><img src="/images/case-2.png" alt=""></p>
 <h2 id="Following-users"><a href="#Following-users" class="headerlink" title="Following users"></a><a href="#Following-users" title="Following users"></a>Following users</h2><p>There are more than Lists. Redis also supports Sets that are unsorted collections of elements. It is possible to add, remove, and test for the existence of members and perform intersections between different Sets. If user id 1000 (Eric) wants to follow user id 1001 (Yuan), we can do this with just two SADD:</p>
 <pre><code>SADD user:id:1000:following 1001
 SADD user:id:1001:followers 1000
 </code></pre><p>And remove a friend is much like to following a user. It should be pointed out that we will lose a follower when your follower “removes” you. The core code below:</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">remove_friend</span></span></div><div class="line">  redis.srem(<span class="string">"user:id:<span class="subst">#&#123;params[<span class="symbol">:self_id</span>]&#125;</span>:followees"</span>, params[<span class="symbol">:follower_id</span>])</div><div class="line">  redis.srem(<span class="string">"user:id:<span class="subst">#&#123;params[<span class="symbol">:follower_id</span>]&#125;</span>:followers"</span>, params[<span class="symbol">:self_id</span>])</div><div class="line">  remove_ids= redis.smembers(<span class="string">"user:id:<span class="subst">#&#123;params[<span class="symbol">:follower_id</span>]&#125;</span>:posts"</span>)</div><div class="line">  remove_ids.each <span class="keyword">do</span> <span class="params">|id|</span></div><div class="line">    redis.srem(<span class="string">"user:id:<span class="subst">#&#123;params[<span class="symbol">:self_id</span>]&#125;</span>:mentions"</span>, id) </div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
 <p>Here is a screenshot of string value we save in Redis:</p>
-<p><img src="http://shaorui23.github.io/2013/04/images/case-3.png" alt=""></p>
+<p><img src="/images/case-3.png" alt=""></p>
 <p><code>TechForce</code> is a weekly meeting held at The Plant for developers to present and discuss new technologies and projects they are working on. Each week a different developer presents.</p>
 
       
@@ -413,7 +413,7 @@ SADD user:id:1001:followers 1000
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/08/30/如何用-Go-写-Ruby/如何用-Go-写-Ruby/" rel="prev" title="如何用-Go-写-Ruby">
+              <a href="/2016/07/12/如何用-Go-写-Ruby/如何用-Go-写-Ruby/" rel="prev" title="如何用-Go-写-Ruby">
                 如何用-Go-写-Ruby <i class="fa fa-chevron-right"></i>
               </a>
             
