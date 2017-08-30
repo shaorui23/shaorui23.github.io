@@ -1,4 +1,6 @@
 
+使用 blog 分支部署。用 master 部署会覆盖掉 github page
+
 ### generate
 
 ```

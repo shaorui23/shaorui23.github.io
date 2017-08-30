@@ -74,5 +74,5 @@ description: Once Gooner, Always Gooner
 deploy:
   type: git
   repo: git@github.com:shaorui23/shaorui23.github.io.git
-  branch: master
+  branch: blog
   message: 

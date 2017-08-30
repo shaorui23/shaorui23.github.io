@@ -2,7 +2,7 @@
 layout: post
 title: 如何用 Go 写 Ruby
 date: 2016-07-12 10:45:04
-tags:
+tags: go ruby
 ---
 
 <span itemprop="articleBody">
@@ -11,7 +11,7 @@ Go 学习笔记，持续更新。 原文请参考: [http://kimh.github.io/blog/e
 
 ### [](#Create-Array "Create Array")Create Array
 
-Ruby:  
+Ruby:
 
 ```
 numbers = [1,2,3]

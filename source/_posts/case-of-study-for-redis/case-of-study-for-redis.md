@@ -2,7 +2,7 @@
 layout: post
 title: case of study for redis
 date: 2013-04-22 23:33:09
-tags:
+tags: redis
 ---
 
 

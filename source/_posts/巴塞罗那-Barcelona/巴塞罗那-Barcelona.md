@@ -2,7 +2,7 @@
 layout: post
 title: 巴塞罗那 Barcelona
 date: 2017-04-10 13:18:35
-tags:
+tags: 游记
 ---
 
 西班牙的首都是马德里，但是最出名的城市肯定是巴塞罗那。
